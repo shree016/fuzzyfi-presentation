@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FuzzyFi | Soft Computing Presentation</title>
+  <meta name="description" content="FuzzyFi: Wi-Fi router placement using Particle Swarm Optimization and fuzzy logic. A Soft Computing mini project by Shrilaxmi Heralagi and Sneha Uday, BMS College of Engineering.">
+  <link rel="canonical" href="https://shree-hlg.tech/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shree-hlg.tech/">
+  <meta property="og:title" content="FuzzyFi | Soft Computing Presentation">
+  <meta property="og:description" content="Wi-Fi router placement using PSO and fuzzy logic. BMS College of Engineering.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%231f5bff' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar top">
+    <a class="brand" href="#1">FuzzyFi</a>
+    <p class="where" id="where">Introduction</p>
+    <button class="pill pill-outline small" type="button" id="fullscreen">Full screen</button>
+  </header>
+
+  <main class="deck" id="deck">
+
+    <!-- 1. Title -->
+    <section class="slide title-slide" data-title="Introduction" aria-label="Slide 1: Title">
+      <div class="inner center">
+        <p class="tag">Soft Computing mini project &middot; BMS College of Engineering</p>
+        <h1>FuzzyFi</h1>
+        <p class="subtitle">Wi-Fi router placement using Particle Swarm Optimization and fuzzy logic</p>
+        <div class="banner">
+          <div>
+            <p class="banner-note">Presented by</p>
+            <p class="banner-title">Shrilaxmi Heralagi &amp; Sneha Uday</p>
+          </div>
+          <button class="pill pill-light" type="button" data-next>Start</button>
+        </div>
+        <p class="hint">Use the arrow keys, or swipe on a phone</p>
+      </div>
+    </section>
+
+    <!-- 2. The problem -->
+    <section class="slide" data-title="The problem" aria-label="Slide 2: The problem">
+      <div class="inner split">
+        <div>
+          <p class="kicker">The problem</p>
+          <h2>Where should the routers go?</h2>
+          <p class="lead">A router in the wrong place leaves some rooms with weak Wi-Fi. FuzzyFi finds where to put <strong>two routers</strong> on a hostel floor, so that as much of the floor as possible gets a good signal.</p>
+          <div class="facts">
+            <div class="fact"><strong>30 &times; 18 m</strong><span>hostel floor</span></div>
+            <div class="fact"><strong>960</strong><span>spots tested</span></div>
+            <div class="fact"><strong>2</strong><span>routers</span></div>
+          </div>
+        </div>
+        <figure>
+          <canvas class="floor" data-map="plain" role="img" aria-label="Hostel floor plan with rooms on both sides of a corridor"></canvas>
+          <figcaption>The hostel floor: rooms on both sides of a corridor. Gaps in the corridor walls are doors.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 3. Why soft computing -->
+    <section class="slide" data-title="Why soft computing" aria-label="Slide 3: Why soft computing">
+      <div class="inner">
+        <p class="kicker">Why soft computing?</p>
+        <h2>Trying every position is too slow</h2>
+        <div class="versus">
+          <div class="big-box">
+            <strong>460,320</strong>
+            <span>possible pairs, even if routers could only stand on the 960 test spots. Checking all of them takes 10 minutes or more.</span>
+          </div>
+          <p class="vs">vs</p>
+          <div class="big-box dark">
+            <strong>820</strong>
+            <span>placements checked by PSO: 20 particles at the start, then 20 more in each of 40 iterations.</span>
+          </div>
+        </div>
+        <p class="formula">Walls make the score jump suddenly, so no simple formula gives the best position. Soft computing finds a very good answer quickly, instead of a perfect answer slowly.</p>
+      </div>
+    </section>
+
+    <!-- 4. Two techniques -->
+    <section class="slide" data-title="Two techniques" aria-label="Slide 4: The two techniques">
+      <div class="inner">
+        <p class="kicker">The two techniques</p>
+        <h2>PSO is the searcher. Fuzzy logic is the judge.</h2>
+        <div class="duo">
+          <article class="card">
+            <p class="card-label">The searcher</p>
+            <h3>Particle Swarm Optimization</h3>
+            <p>Moves the routers towards better positions.</p>
+            <p class="picture">Like 20 friends searching a dark field for the best phone signal, who keep telling each other the best spot found so far.</p>
+          </article>
+          <article class="card">
+            <p class="card-label">The judge</p>
+            <h3>Fuzzy logic</h3>
+            <p>Rates how good the signal is at each spot.</p>
+            <p class="picture">Instead of only good or bad, a spot can be 30% weak and 70% medium, the way people describe things.</p>
+          </article>
+        </div>
+        <p class="note">Everything else, like the signal formula, the server and the drawing, is normal programming.</p>
+      </div>
+    </section>
+
+    <!-- 5. Signal model -->
+    <section class="slide" data-title="Signal model" aria-label="Slide 5: Signal model">
+      <div class="inner">
+        <p class="kicker">Signal model &middot; signal_model.py</p>
+        <h2>How strong is the Wi-Fi at a spot?</h2>
+        <p class="formula big">signal = &minus;30 &minus; 30 &times; log10(distance) &minus; 6 &times; walls</p>
+        <div class="three">
+          <div class="box"><strong>&minus;30</strong><span>The signal 1 metre from the router, in dBm.</span></div>
+          <div class="box"><strong>30 &times; log10(distance)</strong><span>Makes the signal fade with distance.</span></div>
+          <div class="box"><strong>6 &times; walls</strong><span>Removes 6 dBm for each wall crossed.</span></div>
+        </div>
+        <p class="note"><strong>Example:</strong> a spot 10 m from a router, through 2 walls: &minus;30 &minus; 30 &times; log10(10) &minus; 6 &times; 2 = <strong>&minus;72 dBm</strong>. Closer to 0 is stronger. Each spot uses whichever router gives it the stronger signal.</p>
+      </div>
+    </section>
+
+    <!-- 6. Fuzzify -->
+    <section class="slide" data-title="Fuzzy logic: fuzzify" aria-label="Slide 6: Fuzzy logic step 1, fuzzify">
+      <div class="inner split">
+        <div>
+          <p class="kicker">Fuzzy logic &middot; Step 1</p>
+          <h2>Fuzzify</h2>
+          <p class="lead">Each number gets a percentage for each group, called its membership. The groups overlap, so a spot can belong to two groups at once.</p>
+          <p class="lead">With one hard cut-off, &minus;64 dBm could be good and &minus;66 dBm bad, although they are almost the same. Fuzzy logic avoids this sudden jump.</p>
+          <ul class="grades">
+            <li><span>Weak</span><i><b style="width:47%"></b></i><span>0.47</span></li>
+            <li><span>Medium</span><i><b style="width:53%"></b></i><span>0.53</span></li>
+            <li><span>Few walls</span><i><b style="width:67%"></b></i><span>0.67</span></li>
+            <li><span>Many walls</span><i><b style="width:33%"></b></i><span>0.33</span></li>
+          </ul>
+          <p class="small">The example spot: &minus;72 dBm and 2 walls.</p>
+        </div>
+        <div>
+          <svg class="membership" viewBox="0 0 460 206" role="img" aria-label="Signal membership graph. Weak falls from 100 percent at minus 80 dBm to 0 at minus 65. Medium peaks at minus 65. Strong rises to 100 percent at minus 50. The example at minus 72 dBm is 47 percent Weak and 53 percent Medium.">
+            <line x1="34" x2="446" y1="166" y2="166" stroke="#595959"/>
+            <line x1="34" x2="446" y1="30" y2="30" stroke="#e6e6e6"/>
+            <polyline points="34,30 85.5,30 240,166" fill="none" stroke="#000" stroke-width="2.5" stroke-dasharray="3 4"/>
+            <polyline points="85.5,166 240,30 394.5,166" fill="none" stroke="#000" stroke-width="2.5"/>
+            <polyline points="240,166 394.5,30 446,30" fill="none" stroke="#000" stroke-width="2.5" stroke-dasharray="10 5"/>
+            <line x1="167.9" x2="167.9" y1="26" y2="166" stroke="#1f5bff" stroke-width="2.5"/>
+            <circle cx="167.9" cy="102.5" r="5" fill="#1f5bff" stroke="#fff" stroke-width="2"/>
+            <circle cx="167.9" cy="93.5" r="5" fill="#1f5bff" stroke="#fff" stroke-width="2"/>
+            <g font-size="12" fill="#000">
+              <text x="40" y="48">Weak</text>
+              <text x="252" y="50">Medium</text>
+              <text x="442" y="48" text-anchor="end">Strong</text>
+              <text x="167.9" y="19" text-anchor="middle" fill="#1f5bff" font-weight="600">&minus;72 dBm</text>
+            </g>
+            <g font-size="11" fill="#595959">
+              <text x="30" y="34" text-anchor="end">100%</text>
+              <text x="30" y="170" text-anchor="end">0%</text>
+              <text x="85.5" y="182" text-anchor="middle">-80</text>
+              <text x="240" y="182" text-anchor="middle">-65</text>
+              <text x="394.5" y="182" text-anchor="middle">-50</text>
+              <text x="240" y="200" text-anchor="middle">Signal in dBm</text>
+            </g>
+          </svg>
+          <svg class="membership" viewBox="0 0 460 206" role="img" aria-label="Walls membership graph. Up to 1 wall is fully Few, 4 or more is fully Many. The example with 2 walls is 67 percent Few and 33 percent Many.">
+            <line x1="34" x2="446" y1="166" y2="166" stroke="#595959"/>
+            <line x1="34" x2="446" y1="30" y2="30" stroke="#e6e6e6"/>
+            <polyline points="34,30 102.7,30 308.7,166 446,166" fill="none" stroke="#000" stroke-width="2.5" stroke-dasharray="3 4"/>
+            <polyline points="34,166 102.7,166 308.7,30 446,30" fill="none" stroke="#000" stroke-width="2.5"/>
+            <line x1="171.3" x2="171.3" y1="26" y2="166" stroke="#1f5bff" stroke-width="2.5"/>
+            <circle cx="171.3" cy="75.3" r="5" fill="#1f5bff" stroke="#fff" stroke-width="2"/>
+            <circle cx="171.3" cy="120.7" r="5" fill="#1f5bff" stroke="#fff" stroke-width="2"/>
+            <g font-size="12" fill="#000">
+              <text x="40" y="48">Few</text>
+              <text x="442" y="48" text-anchor="end">Many</text>
+              <text x="171.3" y="19" text-anchor="middle" fill="#1f5bff" font-weight="600">2 walls</text>
+            </g>
+            <g font-size="11" fill="#595959">
+              <text x="30" y="34" text-anchor="end">100%</text>
+              <text x="30" y="170" text-anchor="end">0%</text>
+              <text x="34" y="182" text-anchor="middle">0</text>
+              <text x="102.7" y="182" text-anchor="middle">1</text>
+              <text x="171.3" y="182" text-anchor="middle">2</text>
+              <text x="240" y="182" text-anchor="middle">3</text>
+              <text x="308.7" y="182" text-anchor="middle">4</text>
+              <text x="377.3" y="182" text-anchor="middle">5</text>
+              <text x="446" y="182" text-anchor="middle">6</text>
+              <text x="240" y="200" text-anchor="middle">Walls crossed</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Rules -->
+    <section class="slide" data-title="Fuzzy logic: rules" aria-label="Slide 7: Fuzzy logic step 2, apply the rules">
+      <div class="inner">
+        <p class="kicker">Fuzzy logic &middot; Step 2</p>
+        <h2>Apply the rules</h2>
+        <p class="lead">A rule is only as true as its weaker condition, so <strong>AND takes the smaller</strong> of the two percentages. For the example spot, four rules apply.</p>
+        <table class="rules">
+          <thead>
+            <tr><th scope="col">If signal is</th><th scope="col">And walls are</th><th scope="col">Then quality is</th><th scope="col">Strength for the example</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Strong</td><td>Few</td><td>Excellent (100)</td><td>min(0.00, 0.67) = 0.00</td></tr>
+            <tr><td>Strong</td><td>Many</td><td>Good (70)</td><td>min(0.00, 0.33) = 0.00</td></tr>
+            <tr class="fired"><td>Medium</td><td>Few</td><td>Good (70)</td><td>min(0.53, 0.67) = 0.53</td></tr>
+            <tr class="fired"><td>Medium</td><td>Many</td><td>Fair (40)</td><td>min(0.53, 0.33) = 0.33</td></tr>
+            <tr class="fired"><td>Weak</td><td>Few</td><td>Fair (40)</td><td>min(0.47, 0.67) = 0.47</td></tr>
+            <tr class="fired"><td>Weak</td><td>Many</td><td>Poor (10)</td><td>min(0.47, 0.33) = 0.33</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Walls are used twice on purpose. The formula lowers the signal for each wall, and fuzzy logic then treats a spot behind many walls as less reliable.</p>
+      </div>
+    </section>
+
+    <!-- 8. Combine -->
+    <section class="slide" data-title="Fuzzy logic: combine" aria-label="Slide 8: Fuzzy logic step 3, combine">
+      <div class="inner">
+        <p class="kicker">Fuzzy logic &middot; Step 3</p>
+        <h2>Combine into one rating</h2>
+        <p class="lead">Each rule votes for its output number, and stronger rules count for more. The final rating is the weighted average. Because the outputs are fixed numbers, this is a <strong>Sugeno-style</strong> fuzzy system.</p>
+        <p class="formula">rating = sum of (strength &times; output) &divide; sum of strengths</p>
+        <p class="formula">(0.53 &times; 70 + 0.33 &times; 40 + 0.47 &times; 40 + 0.33 &times; 10) &divide; 1.67 = 72.7 &divide; 1.67 = <strong>43.6</strong></p>
+        <div class="scale" aria-label="Rating scale from Poor 10 to Excellent 100. The example rates 43.6, closest to Fair.">
+          <i style="left:37.3%"><em>43.6 &middot; Fair</em></i>
+          <span>Poor 10</span><span>Fair 40</span><span>Good 70</span><span>Excellent 100</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. PSO idea -->
+    <section class="slide" data-title="PSO: the idea" aria-label="Slide 9: Particle Swarm Optimization">
+      <div class="inner split">
+        <div>
+          <p class="kicker">Particle Swarm Optimization &middot; pso.py</p>
+          <h2>A swarm searches together</h2>
+          <ul class="terms">
+            <li><strong>Particle:</strong> one possible answer, stored as four numbers: x1, y1, x2, y2. These are the positions of the two routers.</li>
+            <li><strong>Fitness:</strong> the average fuzzy rating across all 960 spots. Higher is better.</li>
+          </ul>
+          <ol class="steps">
+            <li><b>1</b><span>Place 20 particles at random positions.</span></li>
+            <li><b>2</b><span>Score every particle with the fitness function.</span></li>
+            <li><b>3</b><span>Each particle remembers its own best. The swarm shares the best found by anyone.</span></li>
+            <li><b>4</b><span>Move every particle, then repeat for 40 iterations.</span></li>
+          </ol>
+        </div>
+        <div class="maps">
+          <figure>
+            <canvas class="floor" data-map="start" role="img" aria-label="Iteration 0: the 20 particles are spread randomly across the floor"></canvas>
+            <figcaption><strong>Iteration 0:</strong> particles start at random.</figcaption>
+          </figure>
+          <figure>
+            <canvas class="floor" data-map="end" role="img" aria-label="Iteration 40: the particles have gathered around the two best router positions"></canvas>
+            <figcaption><strong>Iteration 40:</strong> the swarm has gathered at the best spots.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. PSO formula -->
+    <section class="slide" data-title="PSO: the formula" aria-label="Slide 10: The PSO formula">
+      <div class="inner">
+        <p class="kicker">Particle Swarm Optimization</p>
+        <h2>How a particle moves</h2>
+        <p class="formula">new speed = 0.7 &times; old speed + 1.5 &times; r1 &times; (own best &minus; position) + 1.5 &times; r2 &times; (swarm best &minus; position)</p>
+        <p class="formula">new position = position + new speed</p>
+        <div class="split even">
+          <table>
+            <thead><tr><th scope="col">Part</th><th scope="col">Value</th><th scope="col">Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>Inertia</td><td>0.7</td><td>Keeps part of the old speed, so a particle keeps exploring</td></tr>
+              <tr><td>Own pull</td><td>1.5</td><td>Pull towards the particle's own best</td></tr>
+              <tr><td>Swarm pull</td><td>1.5</td><td>Pull towards the swarm's best</td></tr>
+              <tr><td>r1, r2</td><td>0 to 1</td><td>Random, so particles do not all move the same way</td></tr>
+            </tbody>
+          </table>
+          <div class="box worked">
+            <h3>Worked example</h3>
+            <p>Position 10, speed 1, own best 12, swarm best 14, r1 = 0.4, r2 = 0.6.</p>
+            <p class="sum">Speed: 0.7 + 1.2 + 3.6 = <strong>5.5</strong></p>
+            <p class="sum">Position: 10 + 5.5 = <strong>15.5</strong></p>
+            <p class="small">It went past the swarm's best. That is normal, and it helps the swarm explore nearby.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. Code structure -->
+    <section class="slide" data-title="How the code fits" aria-label="Slide 11: How the code fits together">
+      <div class="inner">
+        <p class="kicker">Implementation &middot; Python, Flask, HTML/CSS/JS</p>
+        <h2>How the code fits together</h2>
+        <ol class="flow">
+          <li><strong>app.js</strong><span>Browser asks for /run</span></li>
+          <li><strong>app.py</strong><span>Flask starts the search</span></li>
+          <li class="loop">
+            <p>For every particle, every iteration</p>
+            <ol>
+              <li><strong>pso.py</strong><span>Takes one placement</span></li>
+              <li><strong>signal_model.py</strong><span>Signal and walls at 960 spots</span></li>
+              <li><strong>fuzzy.py</strong><span>Rates each spot 10 to 100</span></li>
+              <li><strong>pso.py</strong><span>Averages, then moves</span></li>
+            </ol>
+          </li>
+          <li><strong>app.py</strong><span>Sends results as JSON</span></li>
+          <li><strong>app.js</strong><span>Draws the heat map</span></li>
+        </ol>
+        <p class="note">All the soft computing runs in Python. The browser only draws the results.</p>
+      </div>
+    </section>
+
+    <!-- 12. Results -->
+    <section class="slide" data-title="Results" aria-label="Slide 12: Results">
+      <div class="inner">
+        <p class="kicker">Results</p>
+        <h2>PSO against random placement</h2>
+        <div class="results">
+          <figure>
+            <canvas class="floor" data-map="random" role="img" aria-label="Heat map for a random placement. Large dark areas have poor signal."></canvas>
+            <figcaption><strong>Random placement:</strong> score <span data-value="random.score"></span>, <span data-value="random.coverage"></span>% of the floor good</figcaption>
+          </figure>
+          <figure>
+            <canvas class="floor" data-map="pso" role="img" aria-label="Heat map for the PSO placement. Almost the whole floor is light, meaning good signal."></canvas>
+            <figcaption><strong>PSO placement:</strong> score <span data-value="pso.score"></span>, <span data-value="pso.coverage"></span>% of the floor good</figcaption>
+          </figure>
+          <div class="chart-box">
+            <h3>Swarm's best score by iteration</h3>
+            <svg id="chart" viewBox="0 0 320 170" role="img" aria-label="Line chart. The swarm's best score rises over 40 iterations and levels off near 83."></svg>
+            <div class="legend" aria-hidden="true"><span>Poor</span><i></i><span>Excellent</span></div>
+          </div>
+        </div>
+        <p class="note">Over 10 runs, PSO scored 82.5 to 83.5 and gave 94% to 99% of the floor a good signal. 100 random placements average 66.0 and 65%. A spot counts as good from a rating of 55.</p>
+      </div>
+    </section>
+
+    <!-- 13. Conclusion -->
+    <section class="slide" data-title="Conclusion" aria-label="Slide 13: Conclusion">
+      <div class="inner">
+        <p class="kicker">Conclusion</p>
+        <h2>What we learned</h2>
+        <div class="three">
+          <div class="box"><strong>Fuzzy logic</strong><span>Rates signal the way people describe it, with no sudden jumps between good and bad.</span></div>
+          <div class="box"><strong>PSO</strong><span>Found a placement covering about 96% of the floor after checking only 820 placements.</span></div>
+          <div class="box"><strong>Together</strong><span>The swarm searches and the fuzzy system judges, so each technique does one clear job.</span></div>
+        </div>
+        <h3 class="sub">Limits and future work</h3>
+        <ul class="terms">
+          <li>Signal strength comes from a formula, not from measuring real routers.</li>
+          <li>The project could be extended to more routers, several floors, or real signal measurements.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 14. Thank you -->
+    <section class="slide title-slide" data-title="Thank you" aria-label="Slide 14: Thank you">
+      <div class="inner center">
+        <h1>Thank you</h1>
+        <p class="subtitle">Questions?</p>
+        <div class="team">
+          <article class="member"><div class="avatar" aria-hidden="true">SH</div><h3>Shrilaxmi Heralagi</h3></article>
+          <article class="member"><div class="avatar" aria-hidden="true">SU</div><h3>Sneha Uday</h3></article>
+        </div>
+        <p class="course">Soft Computing &middot; BMS College of Engineering &middot; <a href="https://shree-hlg.tech/">shree-hlg.tech</a></p>
+        <button class="pill pill-outline" type="button" data-first>Back to the start</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bar bottom">
+    <button class="pill small" type="button" id="prev" aria-label="Previous slide">&larr; Back</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Slides"></div>
+    <p class="count" id="count" aria-live="polite">1 / 14</p>
+    <button class="pill small" type="button" id="next" aria-label="Next slide">Next &rarr;</button>
+    <div class="progress" aria-hidden="true"><i id="progress"></i></div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
